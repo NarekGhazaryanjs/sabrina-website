@@ -1,0 +1,36 @@
+{
+  "name": "sabi",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "node scripts/setup.mjs && next build",
+    "start": "node scripts/check-env.mjs && next start",
+    "setup": "node scripts/setup.mjs",
+    "check-env": "node scripts/check-env.mjs",
+    "generate-secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
+    "backup": "node scripts/backup.mjs",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "jose": "^6.2.3",
+    "lucide-react": "^1.25.0",
+    "next": "^16.2.10",
+    "next-intl": "^4.13.2",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "tailwind-merge": "^3.6.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.1.1",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.10",
+    "postcss": "^8.5.20",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "id": "demo-video-1",
+    "title_en": "My first stream highlights",
+    "title_ru": "Лучшие моменты первого стрима",
+    "description_en": "Best moments from my very first live stream!",
+    "description_ru": "Лучшие моменты моего самого первого стрима!",
+    "media_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "sort_order": 0,
+    "published": true,
+    "created_at": "2026-07-19T22:40:00.000Z"
+  },
+  {
+    "id": "demo-video-2",
+    "title_en": "Q&A with subscribers",
+    "title_ru": "Q&A с подписчиками",
+    "description_en": "Answering your questions — thank you for 1000 followers!",
+    "description_ru": "Отвечаю на ваши вопросы — спасибо за 1000 подписчиков!",
+    "media_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
+    "sort_order": 0,
+    "published": true,
+    "created_at": "2026-07-19T22:39:00.000Z"
+  },
+  {
+    "id": "demo-video-3",
+    "title_en": "Day in my life",
+    "title_ru": "День из моей жизни",
+    "description_en": "A casual vlog — morning routine, gaming, and coffee.",
+    "description_ru": "Обычный влог — утро, игры и кофе.",
+    "media_url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
+    "sort_order": 0,
+    "published": true,
+    "created_at": "2026-07-19T22:38:00.000Z"
+  }
+]

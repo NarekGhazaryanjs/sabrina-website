@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "siteName": "Sabrina",
+    "siteDescription": "Welcome to Sabrina's official website — videos, photos, news and more."
+  },
+  "nav": {
+    "home": "Home",
+    "about": "About Me",
+    "videos": "Videos",
+    "photos": "Photos",
+    "audio": "Audio",
+    "news": "News",
+    "contact": "Contact",
+    "donate": "Donate"
+  },
+  "home": {
+    "heroTitle": "Queen Sabrina",
+    "heroSubtitle": "Streamer · Creator · Dreamer",
+    "heroIntro": "Welcome to my corner of the internet — streams, videos, photos and everything I love sharing with you. Pull up a chair and stay awhile.",
+    "heroCta": "Watch My Videos",
+    "featuredVideos": "Latest Videos",
+    "featuredPhotos": "Latest Photos",
+    "featuredNews": "Latest News",
+    "viewAll": "View All"
+  },
+  "about": {
+    "title": "About Me",
+    "subtitle": "Get to know me better"
+  },
+  "videos": {
+    "title": "Videos",
+    "subtitle": "My latest content",
+    "empty": "No videos yet. Check back soon!"
+  },
+  "photos": {
+    "title": "Photos",
+    "subtitle": "Gallery",
+    "empty": "No photos yet. Check back soon!"
+  },
+  "audio": {
+    "title": "Audio",
+    "subtitle": "Music & voice",
+    "empty": "No audio yet. Check back soon!"
+  },
+  "news": {
+    "title": "News",
+    "subtitle": "Updates & announcements",
+    "empty": "No news yet. Check back soon!",
+    "readMore": "Read More"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Get in touch with me",
+    "formTitle": "Send a message",
+    "name": "Name",
+    "message": "Message",
+    "send": "Send",
+    "sending": "Sending...",
+    "sent": "Message sent! Thank you 💕",
+    "sendError": "Could not send. Please try again.",
+    "socialTitle": "Find me on social media"
+  },
+  "donate": {
+    "title": "Donate",
+    "subtitle": "Support my work",
+    "placeholder": "Donation information will appear here soon."
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "madeWith": "Made with love"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "back": "Back",
+    "language": "Language",
+    "lightMode": "Switch to light mode",
+    "darkMode": "Switch to dark mode"
+  }
+}

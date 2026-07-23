@@ -1,0 +1,20 @@
+{
+  "email": "hello@sabrina.com",
+  "socials": [
+    {
+      "id": "telegram",
+      "label": "Telegram",
+      "url": "https://t.me/your_username"
+    },
+    {
+      "id": "tiktok",
+      "label": "TikTok",
+      "url": "https://tiktok.com/@your_username"
+    },
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "url": "https://instagram.com/your_username"
+    }
+  ]
+}
