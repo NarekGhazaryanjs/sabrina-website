@@ -1,6 +1,22 @@
 # Deploy Guide — Sabrina Website
 
-Step-by-step guide for deploying to a server. Works on any Linux VPS or Docker host.
+## ⚡ Quick install (recommended)
+
+SSH into a Linux server (Ubuntu 22.04+) as **root** and run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NarekGhazaryanjs/sabrina-website/main/deploy/install.sh | bash
+```
+
+With domain name:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NarekGhazaryanjs/sabrina-website/main/deploy/install.sh | bash -s -- yourdomain.com
+```
+
+**That's it.** The script installs Docker, clones the repo, generates admin password, and starts the site on port 3000.
+
+Login details are saved on the server at: `/opt/sabrina-website/ADMIN_LOGIN.txt`
 
 ---
 

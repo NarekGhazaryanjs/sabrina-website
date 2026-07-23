@@ -1,12 +1,30 @@
-# Sabrina — Official Website
+# Sabrina Website
 
-Next.js 16 bilingual website (EN/RU) with admin panel for managing videos, photos, audio, news, pages, and contact messages.
-
-**Stack:** Next.js · TypeScript · Tailwind CSS v4 · next-intl · JSON file storage
+**GitHub:** https://github.com/NarekGhazaryanjs/sabrina-website
 
 ---
 
-## Quick start (development)
+## For Sabrina (site owner)
+
+**You don't need to do anything for deploy.** Everything is on GitHub — content, code, configs.
+
+Give your friend this link: **[FOR_FRIEND.md](./FOR_FRIEND.md)**
+
+They run **one command** on the server and the site goes live.
+
+---
+
+## For deploy (friend / admin)
+
+**One command on Ubuntu VPS:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/NarekGhazaryanjs/sabrina-website/main/deploy/install.sh | bash
+```
+
+Full details: [DEPLOY.md](./DEPLOY.md) · [FOR_FRIEND.md](./FOR_FRIEND.md)
+
+---
 
 ```bash
 npm install

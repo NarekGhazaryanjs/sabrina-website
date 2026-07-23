@@ -24,11 +24,12 @@ RUN addgroup --system --gid 1001 nodejs && \
 
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/seed ./seed
+COPY --from=builder /app/data ./data
 COPY --from=builder /app/scripts ./scripts
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-RUN mkdir -p data public/uploads/videos public/uploads/photos public/uploads/audio public/uploads/news && \
+RUN mkdir -p public/uploads/videos public/uploads/photos public/uploads/audio public/uploads/news && \
     chown -R nextjs:nodejs data public/uploads
 
 USER nextjs

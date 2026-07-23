@@ -1,0 +1,38 @@
+[
+  {
+    "slug": "home",
+    "title_en": "Queen Sabrina",
+    "title_ru": "Королева Сабрина",
+    "subtitle_en": "Streamer · Creator · Dreamer",
+    "subtitle_ru": "Стример · Креатор · Мечтательница",
+    "content_en": "Welcome to my corner of the internet — streams, videos, photos and everything I love sharing with you. Pull up a chair and stay awhile.",
+    "content_ru": "Добро пожаловать в мой уголок интернета — стримы, видео, фото и всё, чем я люблю делиться с вами. Устраивайся поудобнее и оставайся."
+  },
+  {
+    "slug": "about",
+    "title_en": "About Me",
+    "title_ru": "Обо мне",
+    "subtitle_en": "Get to know me better",
+    "subtitle_ru": "Узнай меня поближе",
+    "content_en": "Hey! I'm Sabrina — a streamer, creator, and dreamer.\n\nI love sharing my life, playing games, chatting with you, and creating content that makes people smile. This is my little corner of the internet where I post videos, photos, music, and updates.\n\nThank you for being here. It means the world to me! 💕",
+    "content_ru": "Привет! Я Сабрина — стример, креатор и мечтательница.\n\nЯ люблю делиться своей жизнью, играть в игры, общаться с вами и создавать контент, который дарит улыбки. Это мой уголок интернета, где я публикую видео, фото, музыку и новости.\n\nСпасибо, что вы здесь. Это очень много значит для меня! 💕"
+  },
+  {
+    "slug": "contact",
+    "title_en": "Contact",
+    "title_ru": "Контакт",
+    "subtitle_en": "Get in touch with me",
+    "subtitle_ru": "Свяжись со мной",
+    "content_en": "Feel free to reach out via email or social media. I read every message!",
+    "content_ru": "Свяжитесь со мной по email или в соцсетях. Я читаю каждое сообщение!"
+  },
+  {
+    "slug": "donate",
+    "title_en": "Donate",
+    "title_ru": "Донат",
+    "subtitle_en": "Support my work",
+    "subtitle_ru": "Поддержи мою работу",
+    "content_en": "If you'd like to support my work, thank you so much! 💝\n\nYou can send a donation via:\n\n• Bank transfer: IBAN XX00 0000 0000 0000 0000\n• PayPal: paypal.me/sabrina\n• Card: 0000 0000 0000 0000\n\nEvery bit of support helps me create more content for you. Love you all!",
+    "content_ru": "Если хотите поддержать мою работу — большое спасибо! 💝\n\nВы можете отправить донат:\n\n• Банковский перевод: IBAN XX00 0000 0000 0000 0000\n• PayPal: paypal.me/sabrina\n• Карта: 0000 0000 0000 0000\n\nЛюбая поддержка помогает мне создавать больше контента для вас. Люблю вас!"
+  }
+]

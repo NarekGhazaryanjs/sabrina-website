@@ -1,0 +1,32 @@
+[
+  {
+    "id": "demo-news-1",
+    "title_en": "New website is live!",
+    "title_ru": "Новый сайт запущен!",
+    "content_en": "I'm so excited — my official website is finally here! You'll find all my videos, photos, news and more. Stay tuned for lots of new content coming soon!",
+    "content_ru": "Я так рада — мой официальный сайт наконец здесь! Здесь вы найдёте все мои видео, фото, новости и многое другое. Скоро будет ещё больше контента!",
+    "featured_image": "https://images.unsplash.com/photo-1611162617474-5b21e939e113?w=800&q=80",
+    "published": true,
+    "created_at": "2026-07-19T22:40:00.000Z"
+  },
+  {
+    "id": "demo-news-2",
+    "title_en": "Stream schedule update",
+    "title_ru": "Обновление расписания стримов",
+    "content_en": "New stream schedule:\n\n• Monday & Wednesday — 8 PM\n• Saturday — 3 PM\n\nSee you there! Don't forget to follow on TikTok and Instagram.",
+    "content_ru": "Новое расписание стримов:\n\n• Понедельник и среда — 20:00\n• Суббота — 15:00\n\nУвидимся там! Не забудьте подписаться в TikTok и Instagram.",
+    "featured_image": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800&q=80",
+    "published": true,
+    "created_at": "2026-07-19T22:39:00.000Z"
+  },
+  {
+    "id": "demo-news-3",
+    "title_en": "Thank you for 5000 followers!",
+    "title_ru": "Спасибо за 5000 подписчиков!",
+    "content_en": "We hit 5000 followers! Thank you from the bottom of my heart. A special giveaway stream is coming this weekend — details soon!",
+    "content_ru": "Мы набрали 5000 подписчиков! Спасибо от всего сердца. В эти выходные будет особый стрим с розыгрышем — подробности скоро!",
+    "featured_image": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80",
+    "published": true,
+    "created_at": "2026-07-19T22:38:00.000Z"
+  }
+]
