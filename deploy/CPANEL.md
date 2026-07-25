@@ -1,15 +1,31 @@
-# Deploy on cPanel — iisshha.com
+# Deploy on cPanel + CloudLinux — iisshha.com
 
-Guide for shared hosting with cPanel (like your screenshot: domain `iisshha.com`, folder `/iisshha.com`).
+Guide for **CloudLinux Node.js Selector** (Setup Node.js App in cPanel).
 
-> **Important:** cPanel must have **「Setup Node.js App」** (Приложение Node.js).  
-> If you don't see it — this hosting cannot run Next.js. Use VPS + `deploy/install.sh` instead.
+Domain: **iisshha.com** → folder **`/iisshha.com`**
 
 ---
 
-## Step 1 — Build upload package (on your PC)
+## ⚠️ CloudLinux node_modules rule
 
-Someone with the project runs once:
+CloudLinux shows a path like:
+
+```
+/home/USERNAME/nodevenv/iisshha.com/20/lib/node_modules
+```
+
+**This is normal.** It means:
+
+- ❌ Do **NOT** upload `node_modules` from your PC
+- ❌ Do **NOT** create a real `node_modules` folder manually
+- ✅ Click **「Run NPM Install」** in Node.js Selector
+- ✅ cPanel creates a **symlink** `iisshha.com/node_modules` → `nodevenv/.../lib/node_modules`
+
+If upload included `node_modules`, **delete it** in File Manager, then Run NPM Install again.
+
+---
+
+## Step 1 — Build zip (on PC)
 
 ```bash
 git clone https://github.com/NarekGhazaryanjs/sabrina-website.git
@@ -18,81 +34,86 @@ npm install
 npm run build:cpanel
 ```
 
-This creates folder **`release-cpanel/`** — zip it → `sabrina.zip`.
+Zip folder **`release-cpanel/`** → `sabrina.zip`
+
+**Verify:** zip must NOT contain `node_modules/`
 
 ---
 
-## Step 2 — Upload to cPanel
+## Step 2 — Upload
 
-1. Login to cPanel
-2. **Диспетчер файлов** (File Manager)
-3. Open folder **`iisshha.com`**
-4. Delete old files inside (if any test site)
-5. Upload **`sabrina.zip`**
-6. Extract zip → all files must be directly in `/iisshha.com`:
+1. cPanel → **Диспетчер файлов** (File Manager)
+2. Open **`iisshha.com`**
+3. Delete old files (including `node_modules` folder if exists)
+4. Upload `sabrina.zip` → **Extract**
+5. Files must be directly in `/iisshha.com`:
    - `server.js`
+   - `package.json`
+   - `package-lock.json`
    - `.next/`
-   - `node_modules/`
    - `public/`
    - `data/`
 
 ---
 
-## Step 3 — Create Node.js app
+## Step 3 — Node.js App
 
-1. cPanel → **Setup Node.js App** / **Приложение Node.js**
-2. Click **Create Application** / **Создать приложение**
-3. Settings:
+cPanel → **Setup Node.js App** → **Create Application**
 
-| Field | Value |
-|-------|-------|
-| Node.js version | **20** or **22** (latest available) |
+| Setting | Value |
+|---------|-------|
+| Node.js version | **20** or **22** |
 | Application mode | **Production** |
 | Application root | `iisshha.com` |
 | Application URL | `iisshha.com` |
 | Application startup file | `server.js` |
 
-4. **Environment variables** — add:
+Click **Create**.
+
+---
+
+## Step 4 — Install dependencies
+
+1. Open your app in Node.js Selector
+2. Click **「Run NPM Install」** / **「Запустить NPM Install」**
+3. Wait until finished — `node_modules` becomes a **symlink** to nodevenv
+4. Click **Restart** / **Start App**
+
+---
+
+## Step 5 — Environment variables
+
+In Node.js App → **Environment variables**, add:
 
 ```
-AUTH_SECRET=<generate: npm run generate-secret>
+AUTH_SECRET=<random 32+ chars>
 ADMIN_LOGIN=admin
 ADMIN_PASSWORD=<strong password>
 SITE_URL=https://iisshha.com
 NODE_ENV=production
 ```
 
-5. Click **Create** → then **Run NPM Install** (if button exists) → **Restart**
+Generate secret on PC: `npm run generate-secret`
+
+Click **Save** → **Restart**
 
 ---
 
-## Step 4 — HTTPS
+## Step 6 — HTTPS
 
-In cPanel → **Domains** → `iisshha.com`:
+cPanel → **Domains** → `iisshha.com` → enable **Force HTTPS**
 
-- Enable **Force HTTPS redirect** (Принудительное перенаправление на HTTPS)
-- Or use **SSL/TLS Status** → AutoSSL for free certificate
+Or: **SSL/TLS Status** → Run AutoSSL
 
 ---
 
-## Step 5 — Check
+## Check
 
 | Page | URL |
 |------|-----|
-| Home (RU) | https://iisshha.com/ru |
-| Home (EN) | https://iisshha.com/en |
+| Home RU | https://iisshha.com/ru |
 | Admin | https://iisshha.com/admin/login |
 | Health | https://iisshha.com/api/health |
-
----
-
-## Update site later
-
-1. Run `npm run build:cpanel` on PC again
-2. Upload new `release-cpanel/` contents to `/iisshha.com` (overwrite)
-3. cPanel → Node.js App → **Restart**
-
-Content changes (videos, photos, text) — via **admin panel**, no re-upload needed.
 
 ---
 
@@ -100,19 +121,33 @@ Content changes (videos, photos, text) — via **admin panel**, no re-upload nee
 
 | Problem | Fix |
 |---------|-----|
-| 503 / blank page | Node.js app not running → Restart in cPanel |
-| 500 error | Check env vars (AUTH_SECRET required) |
-| Uploads fail | Folder `public/uploads` must be writable (755/775) |
-| No Node.js in cPanel | Hosting doesn't support Node — use VPS |
+| "node modules must be stored in nodevenv..." | Normal — Run NPM Install, don't upload node_modules |
+| `node_modules` is a folder, not symlink | Delete folder → Run NPM Install |
+| 503 Service Unavailable | App not started → Start/Restart in Node.js Selector |
+| 500 error | Missing AUTH_SECRET → add env vars → Restart |
+| Module not found | Run NPM Install again, then Restart |
+| Upload fails | chmod 755 on `public/uploads` |
 
 ---
 
-## SSH shortcut (if Terminal available in cPanel)
+## SSH (optional)
+
+Activate virtualenv (path shown in Node.js Selector UI):
 
 ```bash
+source /home/USER/nodevenv/iisshha.com/20/bin/activate
 cd ~/iisshha.com
-git clone https://github.com/NarekGhazaryanjs/sabrina-website.git tmp
-cd tmp && npm install && npm run build:cpanel
-cp -r release-cpanel/* ~/iisshha.com/
-# then configure Node.js app in cPanel UI
+npm install --omit=dev
 ```
+
+Then Restart app in cPanel.
+
+---
+
+## Update site
+
+1. `npm run build:cpanel` on PC
+2. Upload new files (overwrite, **no node_modules**)
+3. Node.js Selector → Restart
+
+Content edits — via admin panel, no re-upload needed.

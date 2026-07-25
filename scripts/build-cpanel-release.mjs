@@ -1,10 +1,25 @@
-import { cpSync, existsSync, mkdirSync, rmSync, writeFileSync } from "fs";
-import { join } from "path";
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "fs";
+import { join, sep } from "path";
 import { execSync } from "child_process";
 
 const root = process.cwd();
 const standaloneDir = join(root, ".next", "standalone");
 const releaseDir = join(root, "release-cpanel");
+
+function shouldSkipStandalonePath(src) {
+  const normalized = src.split(sep).join("/");
+  return (
+    normalized.includes("/node_modules/") ||
+    normalized.endsWith("/node_modules")
+  );
+}
 
 console.log("Building production bundle...");
 execSync("npm run build", { stdio: "inherit", cwd: root });
@@ -14,11 +29,14 @@ if (!existsSync(join(standaloneDir, "server.js"))) {
   process.exit(1);
 }
 
-console.log("Preparing cPanel release folder...");
+console.log("Preparing CloudLinux-compatible cPanel release...");
 rmSync(releaseDir, { recursive: true, force: true });
 mkdirSync(releaseDir, { recursive: true });
 
-cpSync(standaloneDir, releaseDir, { recursive: true });
+cpSync(standaloneDir, releaseDir, {
+  recursive: true,
+  filter: (src) => !shouldSkipStandalonePath(src),
+});
 cpSync(join(root, ".next", "static"), join(releaseDir, ".next", "static"), {
   recursive: true,
 });
@@ -26,27 +44,54 @@ cpSync(join(root, "public"), join(releaseDir, "public"), { recursive: true });
 cpSync(join(root, "data"), join(releaseDir, "data"), { recursive: true });
 cpSync(join(root, ".env.example"), join(releaseDir, ".env.example"));
 
+const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf-8"));
+const productionPackage = {
+  name: pkg.name,
+  version: pkg.version,
+  private: true,
+  scripts: {
+    start: "node server.js",
+  },
+  dependencies: pkg.dependencies,
+  engines: {
+    node: ">=20",
+  },
+};
+
+writeFileSync(
+  join(releaseDir, "package.json"),
+  JSON.stringify(productionPackage, null, 2)
+);
+cpSync(join(root, "package-lock.json"), join(releaseDir, "package-lock.json"));
+
 writeFileSync(
   join(releaseDir, "README-UPLOAD.txt"),
-  `Sabrina website — cPanel upload package
-=====================================
+  `Sabrina — CloudLinux / cPanel upload
+====================================
 
-Upload ALL files from this folder into: /iisshha.com
+IMPORTANT: Do NOT upload node_modules!
+CloudLinux installs dependencies into nodevenv and creates a symlink.
 
-Startup file for Node.js app: server.js
+Steps:
+1. Upload all files to /iisshha.com (except node_modules)
+2. cPanel → Setup Node.js App → Create
+   - Application root: iisshha.com
+   - Application URL: iisshha.com
+   - Startup file: server.js
+   - Node.js: 20+
+3. Click "Run NPM Install" (creates node_modules symlink)
+4. Add environment variables (see .env.example)
+5. Restart app
+6. Enable HTTPS for iisshha.com
 
-Required env vars (cPanel → Node.js → Environment):
-  AUTH_SECRET=<random 32+ chars>
-  ADMIN_LOGIN=admin
-  ADMIN_PASSWORD=<strong password>
-  SITE_URL=https://iisshha.com
-  NODE_ENV=production
+If you see "node modules must be stored in .../nodevenv/...":
+  That path is CORRECT — click Run NPM Install, do not upload node_modules.
 
-Full guide: deploy/CPANEL.md
+Guide: deploy/CPANEL.md
 `
 );
 
 console.log("\nDone!");
 console.log(`Upload folder: ${releaseDir}`);
-console.log("Zip it and upload to cPanel → iisshha.com → File Manager");
-console.log("Then follow deploy/CPANEL.md\n");
+console.log("node_modules EXCLUDED — CloudLinux will install via Run NPM Install");
+console.log("Zip and upload to cPanel → iisshha.com\n");
