@@ -6,6 +6,7 @@ import {
   rmSync,
   writeFileSync,
 } from "fs";
+import { randomBytes } from "crypto";
 import { join, sep } from "path";
 import { execSync } from "child_process";
 
@@ -141,33 +142,56 @@ writeFileSync(
   "omit=dev\nlegacy-peer-deps=true\nfund=false\naudit=false\n"
 );
 
+const authSecret = randomBytes(32).toString("hex");
+const adminPassword = randomBytes(12).toString("base64url");
+
 writeFileSync(
-  join(releaseDir, "cpanel-npm-install.sh"),
-  `#!/bin/bash
-set -e
-cd "$(dirname "$0")"
-npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
-echo "Done. Edit .env then Restart app in cPanel."
+  join(releaseDir, ".env"),
+  `# Sabrina — production settings (upload with zip)
+# Change ADMIN_PASSWORD before going live!
+
+AUTH_SECRET=${authSecret}
+ADMIN_LOGIN=admin
+ADMIN_PASSWORD=${adminPassword}
+SITE_URL=https://iisshha.com
+NODE_ENV=production
+HOSTNAME=127.0.0.1
+`
+);
+
+writeFileSync(
+  join(releaseDir, "ADMIN-PAROL.txt"),
+  `# Admin login — keep private!
+# URL: https://iisshha.com/admin/login
+
+Login: admin
+Password: ${adminPassword}
+
+(Also saved in .env file)
 `
 );
 
 writeFileSync(
   join(releaseDir, "README-UPLOAD.txt"),
-  `Sabrina — cPanel upload (Linux-compatible)
-==========================================
+  `Sabrina — cPanel upload
+=======================
 
-1. Upload ALL files to iisshha-site (NOT node_modules)
-2. Copy .env.example to .env and fill in secrets
-3. Node.js App → startup file: server.js
-4. Run NPM Install (or: bash cpanel-npm-install.sh)
+1. Upload ALL files to iisshha-site folder (NOT node_modules!)
+2. .env is included — check ADMIN-PAROL.txt for admin password
+3. cPanel → Node.js App:
+   - Application root: iisshha-site
+   - Application URL: iisshha.com
+   - Startup file: server.js
+4. Run NPM Install (button)
 5. Restart app
-6. If error: read startup-error.log in this folder
+6. Site: https://iisshha.com/ru
+7. Admin: https://iisshha.com/admin/login
 
-Prefer Linux-built zip from GitHub Actions artifact (sabrina-cpanel-linux).
+If error: open startup-error.log in this folder.
 `
 );
 
 console.log("\nDone!");
 console.log(`Upload folder: ${releaseDir}`);
 console.log("Startup: server.js (wrapper) → app-server.js (Next.js)");
-console.log("Copy .env.example → .env on server before Restart\n");
+console.log(".env + ADMIN-PAROL.txt included in zip\n");
