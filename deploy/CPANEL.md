@@ -46,13 +46,15 @@ Zip folder **`release-cpanel/`** → `sabrina.zip`
 2. Open **`iisshha.com`**
 3. Delete old files (including `node_modules` folder if exists)
 4. Upload `sabrina.zip` → **Extract**
-5. Files must be directly in `/iisshha.com`:
+5. Files must be directly in your app folder (e.g. `iisshha-site`):
    - `server.js`
    - `package.json`
-   - `package-lock.json`
+   - `.npmrc`
    - `.next/`
    - `public/`
    - `data/`
+
+**Do NOT upload:** `node_modules/`, `package-lock.json`
 
 ---
 
@@ -128,6 +130,42 @@ Or: **SSL/TLS Status** → Run AutoSSL
 | 500 error | Missing AUTH_SECRET → add env vars → Restart |
 | Module not found | Run NPM Install again, then Restart |
 | Upload fails | chmod 755 on `public/uploads` |
+| **NPM Install failed** | See **「NPM Install error」** below |
+
+---
+
+## NPM Install error
+
+`An error occurred during installation of modules...`
+
+Usually caused by **Windows `package-lock.json` or `node_modules` uploaded to Linux server**.
+
+**Fix:**
+
+1. Use a **clean folder** (e.g. `iisshha-site`) — do not reuse folder with old `node_modules`
+2. Upload **new zip** from PC (`npm run build:cpanel`) — it has **no** `package-lock.json`, **no** `node_modules`
+3. Node.js App → **Stop** → **Run NPM Install** → **Restart**
+
+**If UI install still fails — use Terminal:**
+
+```bash
+source /home/wmflggzahnbx/nodevenv/iisshha-site/20/bin/activate
+cd ~/iisshha-site
+npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
+```
+
+(Replace `iisshha-site` and `20` with your app folder and Node version from cPanel.)
+
+Or run the included script:
+
+```bash
+cd ~/iisshha-site
+bash cpanel-npm-install.sh
+```
+
+Then **Restart** app in Node.js Selector.
+
+**If out of memory:** ask reg.am to temporarily raise memory limit, or upgrade hosting plan.
 
 ---
 

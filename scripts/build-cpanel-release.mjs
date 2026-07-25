@@ -62,7 +62,24 @@ writeFileSync(
   join(releaseDir, "package.json"),
   JSON.stringify(productionPackage, null, 2)
 );
-cpSync(join(root, "package-lock.json"), join(releaseDir, "package-lock.json"));
+
+// Do NOT ship package-lock.json — Windows lock breaks Linux npm install on cPanel
+writeFileSync(
+  join(releaseDir, ".npmrc"),
+  "omit=dev\nlegacy-peer-deps=true\nfund=false\naudit=false\n"
+);
+
+writeFileSync(
+  join(releaseDir, "cpanel-npm-install.sh"),
+  `#!/bin/bash
+# Run in cPanel Terminal if "Run NPM Install" fails in the UI
+set -e
+cd "$(dirname "$0")"
+echo "Installing production dependencies for Linux..."
+npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
+echo "Done. Restart the Node.js app in cPanel."
+`
+);
 
 writeFileSync(
   join(releaseDir, "README-UPLOAD.txt"),
