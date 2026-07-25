@@ -65,6 +65,7 @@ ensureWritableDirs();
 
 if (!process.env.NODE_ENV) process.env.NODE_ENV = "production";
 if (!process.env.HOSTNAME) process.env.HOSTNAME = "127.0.0.1";
+if (!process.env.PORT) process.env.PORT = "4000";
 
 if (!process.env.AUTH_SECRET) {
   logError(
@@ -106,6 +107,7 @@ function patchAppServer(serverPath) {
     /"turbopack":\{"resolveAlias":\{[^}]+\},"root":"(?:\\.|[^"\\])*"/g,
     (match) => match.replace(/"root":"(?:\\.|[^"\\])*"/, '"root":"."')
   );
+  code = code.replace(/\|\| 3000/g, "|| 4000");
   writeFileSync(serverPath, code);
 }
 
@@ -170,6 +172,7 @@ ADMIN_PASSWORD=${adminPassword}
 SITE_URL=https://iisshha.com
 NODE_ENV=production
 HOSTNAME=127.0.0.1
+PORT=4000
 `;
 
 writeFileSync(join(releaseDir, "cpanel.env"), envContent);
