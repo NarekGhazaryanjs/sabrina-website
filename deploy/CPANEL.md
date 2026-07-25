@@ -169,6 +169,47 @@ Then **Restart** app in Node.js Selector.
 
 ---
 
+## Internal Server Error (500)
+
+Black screen with **Internal Server Error**:
+
+### 1. Check `startup-error.log`
+File Manager → your app folder → open **`startup-error.log`**
+
+| Log message | Fix |
+|-------------|-----|
+| `AUTH_SECRET is missing` | Edit **`.env`** in app folder OR add env var in Node.js App |
+| `Cannot find module` | Run NPM Install again |
+| `EACCES` / permission | chmod 755 on `data` and `public/uploads` |
+
+### 2. Edit `.env` file on server
+In app folder (`iisshha-site`) create/edit **`.env`**:
+
+```
+AUTH_SECRET=put-a-long-random-string-at-least-32-chars
+ADMIN_LOGIN=admin
+ADMIN_PASSWORD=YourStrongPassword123
+SITE_URL=https://iisshha.com
+NODE_ENV=production
+HOSTNAME=127.0.0.1
+```
+
+Save → Node.js App → **Restart**
+
+### 3. Use Linux-built zip (recommended)
+Windows-built zip can break on Linux server.
+
+Download from GitHub:
+1. https://github.com/NarekGhazaryanjs/sabrina-website/actions
+2. Open latest **Build cPanel Release (Linux)** workflow
+3. Download artifact **`sabrina-cpanel-linux`**
+4. Upload to clean folder → NPM Install → Restart
+
+### 4. Check app logs in cPanel
+Node.js App → **Open Logs** / passenger log — look for red errors.
+
+---
+
 ## Can't delete `node_modules`
 
 CloudLinux often blocks deleting `node_modules` in File Manager because the Node.js app is running or it is a system symlink.

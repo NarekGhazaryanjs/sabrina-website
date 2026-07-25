@@ -13,12 +13,81 @@ const root = process.cwd();
 const standaloneDir = join(root, ".next", "standalone");
 const releaseDir = join(root, "release-cpanel");
 
+const CPANEL_SERVER = String.raw`const fs = require("fs");
+const path = require("path");
+
+function loadEnvFile() {
+  const envPath = path.join(__dirname, ".env");
+  if (!fs.existsSync(envPath)) return;
+  for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eq = trimmed.indexOf("=");
+    if (eq === -1) continue;
+    const key = trimmed.slice(0, eq).trim();
+    const value = trimmed.slice(eq + 1).trim();
+    if (!process.env[key]) process.env[key] = value;
+  }
+}
+
+function ensureWritableDirs() {
+  for (const dir of [
+    "data",
+    "public/uploads/videos",
+    "public/uploads/photos",
+    "public/uploads/audio",
+    "public/uploads/news",
+  ]) {
+    fs.mkdirSync(path.join(__dirname, dir), { recursive: true });
+  }
+}
+
+function patchLinuxPaths(config) {
+  if (config.outputFileTracingRoot) config.outputFileTracingRoot = ".";
+  if (config.turbopack?.root) config.turbopack.root = ".";
+  return config;
+}
+
+loadEnvFile();
+ensureWritableDirs();
+
+if (!process.env.AUTH_SECRET) {
+  console.error("AUTH_SECRET is missing. Add it in cPanel env vars or .env file.");
+}
+
+if (!process.env.HOSTNAME) {
+  process.env.HOSTNAME = "127.0.0.1";
+}
+
+try {
+  require("./app-server.js");
+} catch (error) {
+  const message = error instanceof Error ? error.stack || error.message : String(error);
+  fs.writeFileSync(path.join(__dirname, "startup-error.log"), message);
+  console.error(message);
+  process.exit(1);
+}
+`;
+
 function shouldSkipStandalonePath(src) {
   const normalized = src.split(sep).join("/");
   return (
     normalized.includes("/node_modules/") ||
     normalized.endsWith("/node_modules")
   );
+}
+
+function patchAppServer(serverPath) {
+  let code = readFileSync(serverPath, "utf8");
+  code = code.replace(
+    /"outputFileTracingRoot":"(?:\\.|[^"\\])*"/g,
+    '"outputFileTracingRoot":"."'
+  );
+  code = code.replace(
+    /"turbopack":\{"resolveAlias":\{[^}]+\},"root":"(?:\\.|[^"\\])*"/g,
+    (match) => match.replace(/"root":"(?:\\.|[^"\\])*"/, '"root":"."')
+  );
+  writeFileSync(serverPath, code);
 }
 
 console.log("Building production bundle...");
@@ -44,71 +113,68 @@ cpSync(join(root, "public"), join(releaseDir, "public"), { recursive: true });
 cpSync(join(root, "data"), join(releaseDir, "data"), { recursive: true });
 cpSync(join(root, ".env.example"), join(releaseDir, ".env.example"));
 
-const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf-8"));
-const productionPackage = {
-  name: pkg.name,
-  version: pkg.version,
-  private: true,
-  scripts: {
-    start: "node server.js",
-  },
-  dependencies: pkg.dependencies,
-  engines: {
-    node: ">=20",
-  },
-};
+const appServerPath = join(releaseDir, "app-server.js");
+rmSync(join(releaseDir, "server.js"));
+cpSync(join(standaloneDir, "server.js"), appServerPath);
+patchAppServer(appServerPath);
+writeFileSync(join(releaseDir, "server.js"), CPANEL_SERVER);
 
+const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf-8"));
 writeFileSync(
   join(releaseDir, "package.json"),
-  JSON.stringify(productionPackage, null, 2)
+  JSON.stringify(
+    {
+      name: pkg.name,
+      version: pkg.version,
+      private: true,
+      scripts: { start: "node server.js" },
+      dependencies: pkg.dependencies,
+      engines: { node: ">=20" },
+    },
+    null,
+    2
+  )
 );
 
-// Do NOT ship package-lock.json — Windows lock breaks Linux npm install on cPanel
 writeFileSync(
   join(releaseDir, ".npmrc"),
   "omit=dev\nlegacy-peer-deps=true\nfund=false\naudit=false\n"
 );
 
 writeFileSync(
+  join(releaseDir, ".env"),
+  readFileSync(join(root, ".env.example"), "utf8")
+    .replace("change-me-generate-with-npm-run-generate-secret", "REPLACE_ME_32_CHAR_SECRET")
+    .replace("change-me-strong-password", "REPLACE_ME_PASSWORD")
+);
+
+writeFileSync(
   join(releaseDir, "cpanel-npm-install.sh"),
   `#!/bin/bash
-# Run in cPanel Terminal if "Run NPM Install" fails in the UI
 set -e
 cd "$(dirname "$0")"
-echo "Installing production dependencies for Linux..."
 npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
-echo "Done. Restart the Node.js app in cPanel."
+echo "Done. Edit .env then Restart app in cPanel."
 `
 );
 
 writeFileSync(
   join(releaseDir, "README-UPLOAD.txt"),
-  `Sabrina — CloudLinux / cPanel upload
-====================================
+  `Sabrina — cPanel upload (Linux-compatible)
+==========================================
 
-IMPORTANT: Do NOT upload node_modules!
-CloudLinux installs dependencies into nodevenv and creates a symlink.
-
-Steps:
-1. Upload all files to /iisshha.com (except node_modules)
-2. cPanel → Setup Node.js App → Create
-   - Application root: iisshha.com
-   - Application URL: iisshha.com
-   - Startup file: server.js
-   - Node.js: 20+
-3. Click "Run NPM Install" (creates node_modules symlink)
-4. Add environment variables (see .env.example)
+1. Upload ALL files to iisshha-site (NOT node_modules)
+2. Edit .env — set AUTH_SECRET and ADMIN_PASSWORD
+3. Node.js App → startup file: server.js
+4. Run NPM Install (or: bash cpanel-npm-install.sh)
 5. Restart app
-6. Enable HTTPS for iisshha.com
+6. If error: read startup-error.log in this folder
 
-If you see "node modules must be stored in .../nodevenv/...":
-  That path is CORRECT — click Run NPM Install, do not upload node_modules.
-
-Guide: deploy/CPANEL.md
+Prefer Linux-built zip from GitHub Actions artifact (sabrina-cpanel-linux).
 `
 );
 
 console.log("\nDone!");
 console.log(`Upload folder: ${releaseDir}`);
-console.log("node_modules EXCLUDED — CloudLinux will install via Run NPM Install");
-console.log("Zip and upload to cPanel → iisshha.com\n");
+console.log("Startup: server.js (wrapper) → app-server.js (Next.js)");
+console.log("Edit .env on server before Restart\n");

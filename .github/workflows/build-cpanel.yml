@@ -1,0 +1,39 @@
+name: Build cPanel Release (Linux)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "data/**"
+      - "public/**"
+      - "package.json"
+      - "next.config.ts"
+      - "scripts/build-cpanel-release.mjs"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build:cpanel
+
+      - name: Create zip
+        run: |
+          cd release-cpanel
+          zip -r ../sabrina-iisshha-linux.zip .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sabrina-cpanel-linux
+          path: sabrina-iisshha-linux.zip
+          retention-days: 90
