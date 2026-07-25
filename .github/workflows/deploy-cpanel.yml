@@ -1,0 +1,65 @@
+name: Deploy to reg.am cPanel
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-cpanel
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.repository == 'NarekGhazaryanjs/sabrina-website'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build cPanel release (Linux)
+        env:
+          SABRINA_AUTH_SECRET: ${{ secrets.SABRINA_AUTH_SECRET }}
+          SABRINA_ADMIN_PASSWORD: ${{ secrets.SABRINA_ADMIN_PASSWORD }}
+        run: npm run build:cpanel
+
+      - name: Pack release
+        run: tar -czf release.tar.gz -C release-cpanel .
+
+      - name: Upload to cPanel
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          password: ${{ secrets.CPANEL_PASSWORD }}
+          port: 22
+          source: release.tar.gz,deploy/post-deploy.sh
+          target: ${{ secrets.CPANEL_APP_ROOT }}
+
+      - name: Install & restart on server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USERNAME }}
+          password: ${{ secrets.CPANEL_PASSWORD }}
+          port: 22
+          script: |
+            export CPANEL_APP_ROOT="${{ secrets.CPANEL_APP_ROOT }}"
+            export CPANEL_NODE_VERSION="${{ secrets.CPANEL_NODE_VERSION || '20' }}"
+            export CPANEL_USER="${{ secrets.CPANEL_USERNAME }}"
+            chmod +x "${CPANEL_APP_ROOT}/post-deploy.sh"
+            bash "${CPANEL_APP_ROOT}/post-deploy.sh"
+
+      - name: Health check
+        continue-on-error: true
+        run: |
+          sleep 15
+          curl -fsSL "https://iisshha.com/api/health"

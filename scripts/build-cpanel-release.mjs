@@ -162,8 +162,10 @@ writeFileSync(
   "omit=dev\nlegacy-peer-deps=true\nfund=false\naudit=false\n"
 );
 
-const authSecret = randomBytes(32).toString("hex");
-const adminPassword = randomBytes(12).toString("base64url");
+const authSecret =
+  process.env.SABRINA_AUTH_SECRET || randomBytes(32).toString("hex");
+const adminPassword =
+  process.env.SABRINA_ADMIN_PASSWORD || randomBytes(12).toString("base64url");
 
 const envContent = `# Sabrina — production settings
 AUTH_SECRET=${authSecret}
