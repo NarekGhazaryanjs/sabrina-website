@@ -17,9 +17,9 @@ const releaseDir = join(root, "release-cpanel");
 const CPANEL_SERVER = String.raw`const fs = require("fs");
 const path = require("path");
 
-function loadEnvFile() {
-  const envPath = path.join(__dirname, ".env");
-  if (!fs.existsSync(envPath)) return;
+function loadEnvFile(fileName) {
+  const envPath = path.join(__dirname, fileName);
+  if (!fs.existsSync(envPath)) return false;
   for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith("#")) continue;
@@ -29,6 +29,21 @@ function loadEnvFile() {
     const value = trimmed.slice(eq + 1).trim();
     if (!process.env[key]) process.env[key] = value;
   }
+  return true;
+}
+
+function logError(label, error) {
+  const message =
+    typeof error === "string"
+      ? error
+      : error instanceof Error
+        ? error.stack || error.message
+        : String(error);
+  const line = "[" + new Date().toISOString() + "] " + label + "\n" + message + "\n\n";
+  try {
+    fs.appendFileSync(path.join(__dirname, "startup-error.log"), line);
+  } catch (_) {}
+  console.error(line);
 }
 
 function ensureWritableDirs() {
@@ -43,29 +58,32 @@ function ensureWritableDirs() {
   }
 }
 
-function patchLinuxPaths(config) {
-  if (config.outputFileTracingRoot) config.outputFileTracingRoot = ".";
-  if (config.turbopack?.root) config.turbopack.root = ".";
-  return config;
-}
+const loadedEnv =
+  loadEnvFile("cpanel.env") || loadEnvFile(".env") || loadEnvFile("production.env");
 
-loadEnvFile();
 ensureWritableDirs();
 
+if (!process.env.NODE_ENV) process.env.NODE_ENV = "production";
+if (!process.env.HOSTNAME) process.env.HOSTNAME = "127.0.0.1";
+
 if (!process.env.AUTH_SECRET) {
-  console.error("AUTH_SECRET is missing. Add it in cPanel env vars or .env file.");
+  logError(
+    "CONFIG",
+    "AUTH_SECRET is missing. Upload cpanel.env or add env vars in cPanel Node.js App."
+  );
 }
 
-if (!process.env.HOSTNAME) {
-  process.env.HOSTNAME = "127.0.0.1";
+if (!loadedEnv) {
+  logError("CONFIG", "No cpanel.env file found. cPanel often skips hidden .env files.");
 }
+
+process.on("uncaughtException", (err) => logError("uncaughtException", err));
+process.on("unhandledRejection", (err) => logError("unhandledRejection", err));
 
 try {
   require("./app-server.js");
 } catch (error) {
-  const message = error instanceof Error ? error.stack || error.message : String(error);
-  fs.writeFileSync(path.join(__dirname, "startup-error.log"), message);
-  console.error(message);
+  logError("STARTUP", error);
   process.exit(1);
 }
 `;
@@ -145,19 +163,17 @@ writeFileSync(
 const authSecret = randomBytes(32).toString("hex");
 const adminPassword = randomBytes(12).toString("base64url");
 
-writeFileSync(
-  join(releaseDir, ".env"),
-  `# Sabrina — production settings (upload with zip)
-# Change ADMIN_PASSWORD before going live!
-
+const envContent = `# Sabrina — production settings
 AUTH_SECRET=${authSecret}
 ADMIN_LOGIN=admin
 ADMIN_PASSWORD=${adminPassword}
 SITE_URL=https://iisshha.com
 NODE_ENV=production
 HOSTNAME=127.0.0.1
-`
-);
+`;
+
+writeFileSync(join(releaseDir, "cpanel.env"), envContent);
+writeFileSync(join(releaseDir, ".env"), envContent);
 
 writeFileSync(
   join(releaseDir, "ADMIN-PAROL.txt"),
@@ -167,7 +183,7 @@ writeFileSync(
 Login: admin
 Password: ${adminPassword}
 
-(Also saved in .env file)
+(Settings are in cpanel.env — cPanel sees this file, not .env)
 `
 );
 
@@ -176,22 +192,21 @@ writeFileSync(
   `Sabrina — cPanel upload
 =======================
 
-1. Upload ALL files to iisshha-site folder (NOT node_modules!)
-2. .env is included — check ADMIN-PAROL.txt for admin password
-3. cPanel → Node.js App:
-   - Application root: iisshha-site
-   - Application URL: iisshha.com
-   - Startup file: server.js
-4. Run NPM Install (button)
-5. Restart app
-6. Site: https://iisshha.com/ru
-7. Admin: https://iisshha.com/admin/login
+1. Upload ALL files to iisshha-site (NOT node_modules!)
+2. IMPORTANT: cpanel.env must be present (visible file, not hidden)
+3. Check ADMIN-PAROL.txt for admin password
+4. cPanel → Node.js App:
+   - root: iisshha-site
+   - URL: iisshha.com
+   - startup: server.js
+5. Run NPM Install → Restart
+6. Test: https://iisshha.com/api/health
 
-If error: open startup-error.log in this folder.
+If 500 error: open startup-error.log in File Manager
+Also add env vars in cPanel Node.js App (backup)
 `
 );
 
 console.log("\nDone!");
 console.log(`Upload folder: ${releaseDir}`);
-console.log("Startup: server.js (wrapper) → app-server.js (Next.js)");
-console.log(".env + ADMIN-PAROL.txt included in zip\n");
+console.log("Files: cpanel.env + ADMIN-PAROL.txt + server.js\n");
