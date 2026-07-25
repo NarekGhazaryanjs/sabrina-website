@@ -31,35 +31,27 @@ jobs:
           SABRINA_ADMIN_PASSWORD: ${{ secrets.SABRINA_ADMIN_PASSWORD }}
         run: npm run build:cpanel
 
-      - name: Pack release
-        run: tar -czf release.tar.gz -C release-cpanel .
-
-      - name: Upload to cPanel
-        uses: appleboy/scp-action@v0.1.7
+      - name: Upload release via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          host: ${{ secrets.CPANEL_HOST }}
+          server: ${{ secrets.CPANEL_FTP_HOST }}
           username: ${{ secrets.CPANEL_USERNAME }}
           password: ${{ secrets.CPANEL_PASSWORD }}
-          port: 22
-          source: release.tar.gz,deploy/post-deploy.sh
-          target: ${{ secrets.CPANEL_APP_ROOT }}
+          port: 21
+          protocol: ftps
+          local-dir: release-cpanel/
+          server-dir: /iisshha-site/
+          dangerous-clean-slate: true
 
-      - name: Install & restart on server
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.CPANEL_HOST }}
-          username: ${{ secrets.CPANEL_USERNAME }}
-          password: ${{ secrets.CPANEL_PASSWORD }}
-          port: 22
-          script: |
-            export CPANEL_APP_ROOT="${{ secrets.CPANEL_APP_ROOT }}"
-            export CPANEL_NODE_VERSION="${{ secrets.CPANEL_NODE_VERSION || '20' }}"
-            export CPANEL_USER="${{ secrets.CPANEL_USERNAME }}"
-            chmod +x "${CPANEL_APP_ROOT}/post-deploy.sh"
-            bash "${CPANEL_APP_ROOT}/post-deploy.sh"
+      - name: Deploy note
+        run: |
+          echo "Files uploaded. In cPanel → Setup Node.js App:"
+          echo "  1. Run NPM Install (only if package.json changed)"
+          echo "  2. Restart application"
+          echo "Health: https://iisshha.com/api/health"
 
       - name: Health check
         continue-on-error: true
         run: |
-          sleep 15
-          curl -fsSL "https://iisshha.com/api/health"
+          sleep 20
+          curl -fsSL "https://iisshha.com/api/health" || true

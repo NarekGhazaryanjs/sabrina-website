@@ -6,14 +6,13 @@
 
 | Secret | Value |
 |--------|-------|
-| `CPANEL_HOST` | `server2.reg.am` (or `49.12.164.154`) |
+| `CPANEL_FTP_HOST` | `server2.reg.am` (or `ftp.iisshha.com`) |
 | `CPANEL_USERNAME` | `wmflggzahnbx` |
 | `CPANEL_PASSWORD` | your cPanel password |
-| `CPANEL_APP_ROOT` | `/home/wmflggzahnbx/iisshha-site` |
-| `CPANEL_NODE_VERSION` | `20` |
-| `CPANEL_PORT` | `22` (optional) |
 | `SABRINA_AUTH_SECRET` | random 32+ chars (keep same across deploys) |
 | `SABRINA_ADMIN_PASSWORD` | admin panel password (keep same) |
+
+> **Note:** reg.am shared hosting blocks external SSH (port 22). Deploy uses **FTPS** (port 21). After upload, click **Restart** in cPanel Node.js App (and **Run NPM Install** if `package.json` changed).
 
 Generate secret:
 ```bash

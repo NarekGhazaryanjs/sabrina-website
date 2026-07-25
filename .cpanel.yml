@@ -1,0 +1,14 @@
+---
+# Optional: cPanel Git Version Control → Deploy HEAD (runs ON the server, no external SSH).
+# Setup: cPanel → Git Version Control → clone repo → enable deployment to iisshha-site.
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/wmflggzahnbx/iisshha-site
+    - export PATH=/home/wmflggzahnbx/nodevenv/iisshha-site/20/bin:$PATH
+    - cd /home/wmflggzahnbx/repositories/sabrina-website
+    - npm ci
+    - npm run build:cpanel
+    - /bin/cp -a release-cpanel/. "$DEPLOYPATH/"
+    - cd "$DEPLOYPATH"
+    - npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
+    - cloudlinux-selector restart --json --interpreter nodejs --app-root iisshha-site --user wmflggzahnbx || true
