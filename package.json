@@ -10,6 +10,7 @@
     "check-env": "node scripts/check-env.mjs",
     "generate-secret": "node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\"",
     "backup": "node scripts/backup.mjs",
+    "build:cpanel": "node scripts/build-cpanel-release.mjs",
     "lint": "next lint"
   },
   "dependencies": {

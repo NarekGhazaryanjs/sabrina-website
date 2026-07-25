@@ -1,4 +1,18 @@
-# Для друга — деплой сайта Sabrina (1 команда)
+# Для друга — деплой сайта Sabrina
+
+## Вариант A — cPanel (iisshha.com)
+
+Если есть cPanel с **Node.js App** → смотри **[deploy/CPANEL.md](./deploy/CPANEL.md)**
+
+Кратко:
+1. `npm run build:cpanel` на ПК
+2. Zip `release-cpanel/` → загрузить в `/iisshha.com`
+3. cPanel → Node.js App → startup `server.js`
+4. Включить HTTPS для домена
+
+---
+
+## Вариант B — VPS (1 команда)
 
 Подключись к **Linux-серверу** (Ubuntu/Debian) по SSH и выполни:
 

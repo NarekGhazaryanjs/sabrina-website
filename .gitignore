@@ -39,6 +39,9 @@ yarn-error.log*
 # backups
 /backups/
 
+# cPanel release build
+/release-cpanel/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
