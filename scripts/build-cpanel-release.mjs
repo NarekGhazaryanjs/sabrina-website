@@ -142,13 +142,6 @@ writeFileSync(
 );
 
 writeFileSync(
-  join(releaseDir, ".env"),
-  readFileSync(join(root, ".env.example"), "utf8")
-    .replace("change-me-generate-with-npm-run-generate-secret", "REPLACE_ME_32_CHAR_SECRET")
-    .replace("change-me-strong-password", "REPLACE_ME_PASSWORD")
-);
-
-writeFileSync(
   join(releaseDir, "cpanel-npm-install.sh"),
   `#!/bin/bash
 set -e
@@ -164,7 +157,7 @@ writeFileSync(
 ==========================================
 
 1. Upload ALL files to iisshha-site (NOT node_modules)
-2. Edit .env — set AUTH_SECRET and ADMIN_PASSWORD
+2. Copy .env.example to .env and fill in secrets
 3. Node.js App → startup file: server.js
 4. Run NPM Install (or: bash cpanel-npm-install.sh)
 5. Restart app
@@ -177,4 +170,4 @@ Prefer Linux-built zip from GitHub Actions artifact (sabrina-cpanel-linux).
 console.log("\nDone!");
 console.log(`Upload folder: ${releaseDir}`);
 console.log("Startup: server.js (wrapper) → app-server.js (Next.js)");
-console.log("Edit .env on server before Restart\n");
+console.log("Copy .env.example → .env on server before Restart\n");

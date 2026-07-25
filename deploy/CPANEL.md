@@ -149,7 +149,7 @@ Usually caused by **Windows `package-lock.json` or `node_modules` uploaded to Li
 **If UI install still fails — use Terminal:**
 
 ```bash
-source /home/wmflggzahnbx/nodevenv/iisshha-site/20/bin/activate
+source /home/USER/nodevenv/APP_FOLDER/20/bin/activate
 cd ~/iisshha-site
 npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
 ```
