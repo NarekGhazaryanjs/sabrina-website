@@ -122,11 +122,66 @@ Or: **SSL/TLS Status** → Run AutoSSL
 | Problem | Fix |
 |---------|-----|
 | "node modules must be stored in nodevenv..." | Normal — Run NPM Install, don't upload node_modules |
+| **Can't delete `node_modules` in File Manager** | See **「Can't delete node_modules」** below |
 | `node_modules` is a folder, not symlink | Delete folder → Run NPM Install |
 | 503 Service Unavailable | App not started → Start/Restart in Node.js Selector |
 | 500 error | Missing AUTH_SECRET → add env vars → Restart |
 | Module not found | Run NPM Install again, then Restart |
 | Upload fails | chmod 755 on `public/uploads` |
+
+---
+
+## Can't delete `node_modules`
+
+CloudLinux often blocks deleting `node_modules` in File Manager because the Node.js app is running or it is a system symlink.
+
+**Try in this order:**
+
+### 1. Stop the app first
+1. cPanel → **Setup Node.js App**
+2. Open your app → click **Stop App** / **Остановить**
+3. Wait 10 seconds
+4. File Manager → `iisshha.com` → delete `node_modules` again
+
+### 2. Delete via cPanel Terminal (best)
+1. cPanel → **Terminal** (Терминал)
+2. Run (replace `USER` with your cPanel username if needed):
+
+```bash
+cd ~/iisshha.com
+ls -la node_modules
+```
+
+If it shows `node_modules -> .../nodevenv/...` (symlink) — remove only the link:
+
+```bash
+rm node_modules
+```
+
+If it is a real folder:
+
+```bash
+rm -rf node_modules
+```
+
+Then in Node.js Selector → **Run NPM Install** → **Restart**
+
+### 3. Destroy and recreate the Node.js app
+1. Setup Node.js App → your app → **Destroy** / **Удалить**
+2. File Manager → delete everything in `iisshha.com` (or delete `node_modules` only)
+3. Upload zip again (without node_modules)
+4. Create Node.js app from scratch (Step 3 above)
+5. Run NPM Install → Restart
+
+### 4. If Terminal is not available
+- cPanel → **File Manager** → Settings → enable **「Show Hidden Files」**
+- Right-click `node_modules` → **Delete**
+- Or select all **inside** `node_modules` first, delete contents, then delete empty folder
+
+### 5. Still blocked?
+Ask hosting support: *"Please remove `/home/USER/iisshha.com/node_modules` — I need CloudLinux to recreate it as a symlink after NPM Install."*
+
+**Do NOT delete the `nodevenv` folder** — only `iisshha.com/node_modules`.
 
 ---
 
